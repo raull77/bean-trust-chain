@@ -9,12 +9,33 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerifierRouteImport } from './routes/verifier'
+import { Route as ShopRouteImport } from './routes/shop'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as FarmerRouteImport } from './routes/farmer'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FarmerIndexRouteImport } from './routes/farmer.index'
+import { Route as FarmerBatchesRouteImport } from './routes/farmer.batches'
+import { Route as FarmerAddRouteImport } from './routes/farmer.add'
 
+const VerifierRoute = VerifierRouteImport.update({
+  id: '/verifier',
+  path: '/verifier',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FarmerRoute = FarmerRouteImport.update({
+  id: '/farmer',
+  path: '/farmer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -22,40 +43,120 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FarmerIndexRoute = FarmerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerBatchesRoute = FarmerBatchesRouteImport.update({
+  id: '/batches',
+  path: '/batches',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerAddRoute = FarmerAddRouteImport.update({
+  id: '/add',
+  path: '/add',
+  getParentRoute: () => FarmerRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/farmer': typeof FarmerRouteWithChildren
   '/login': typeof LoginRoute
+  '/shop': typeof ShopRoute
+  '/verifier': typeof VerifierRoute
+  '/farmer/add': typeof FarmerAddRoute
+  '/farmer/batches': typeof FarmerBatchesRoute
+  '/farmer/': typeof FarmerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/shop': typeof ShopRoute
+  '/verifier': typeof VerifierRoute
+  '/farmer/add': typeof FarmerAddRoute
+  '/farmer/batches': typeof FarmerBatchesRoute
+  '/farmer': typeof FarmerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/farmer': typeof FarmerRouteWithChildren
   '/login': typeof LoginRoute
+  '/shop': typeof ShopRoute
+  '/verifier': typeof VerifierRoute
+  '/farmer/add': typeof FarmerAddRoute
+  '/farmer/batches': typeof FarmerBatchesRoute
+  '/farmer/': typeof FarmerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login'
+  fullPaths:
+    | '/'
+    | '/farmer'
+    | '/login'
+    | '/shop'
+    | '/verifier'
+    | '/farmer/add'
+    | '/farmer/batches'
+    | '/farmer/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login'
-  id: '__root__' | '/' | '/login'
+  to:
+    | '/'
+    | '/login'
+    | '/shop'
+    | '/verifier'
+    | '/farmer/add'
+    | '/farmer/batches'
+    | '/farmer'
+  id:
+    | '__root__'
+    | '/'
+    | '/farmer'
+    | '/login'
+    | '/shop'
+    | '/verifier'
+    | '/farmer/add'
+    | '/farmer/batches'
+    | '/farmer/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FarmerRoute: typeof FarmerRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ShopRoute: typeof ShopRoute
+  VerifierRoute: typeof VerifierRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/verifier': {
+      id: '/verifier'
+      path: '/verifier'
+      fullPath: '/verifier'
+      preLoaderRoute: typeof VerifierRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/farmer': {
+      id: '/farmer'
+      path: '/farmer'
+      fullPath: '/farmer'
+      preLoaderRoute: typeof FarmerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -65,12 +166,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/farmer/': {
+      id: '/farmer/'
+      path: '/'
+      fullPath: '/farmer/'
+      preLoaderRoute: typeof FarmerIndexRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/batches': {
+      id: '/farmer/batches'
+      path: '/batches'
+      fullPath: '/farmer/batches'
+      preLoaderRoute: typeof FarmerBatchesRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/add': {
+      id: '/farmer/add'
+      path: '/add'
+      fullPath: '/farmer/add'
+      preLoaderRoute: typeof FarmerAddRouteImport
+      parentRoute: typeof FarmerRoute
+    }
   }
 }
 
+interface FarmerRouteChildren {
+  FarmerAddRoute: typeof FarmerAddRoute
+  FarmerBatchesRoute: typeof FarmerBatchesRoute
+  FarmerIndexRoute: typeof FarmerIndexRoute
+}
+
+const FarmerRouteChildren: FarmerRouteChildren = {
+  FarmerAddRoute: FarmerAddRoute,
+  FarmerBatchesRoute: FarmerBatchesRoute,
+  FarmerIndexRoute: FarmerIndexRoute,
+}
+
+const FarmerRouteWithChildren =
+  FarmerRoute._addFileChildren(FarmerRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FarmerRoute: FarmerRouteWithChildren,
   LoginRoute: LoginRoute,
+  ShopRoute: ShopRoute,
+  VerifierRoute: VerifierRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
