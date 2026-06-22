@@ -14,7 +14,10 @@ import { Route as ShopRouteImport } from './routes/shop'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FarmerRouteImport } from './routes/farmer'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as VerifierIndexRouteImport } from './routes/verifier.index'
 import { Route as FarmerIndexRouteImport } from './routes/farmer.index'
+import { Route as VerifierQueueRouteImport } from './routes/verifier.queue'
+import { Route as VerifierIdRouteImport } from './routes/verifier.$id'
 import { Route as FarmerBatchesRouteImport } from './routes/farmer.batches'
 import { Route as FarmerAddRouteImport } from './routes/farmer.add'
 
@@ -43,10 +46,25 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerifierIndexRoute = VerifierIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => VerifierRoute,
+} as any)
 const FarmerIndexRoute = FarmerIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => FarmerRoute,
+} as any)
+const VerifierQueueRoute = VerifierQueueRouteImport.update({
+  id: '/queue',
+  path: '/queue',
+  getParentRoute: () => VerifierRoute,
+} as any)
+const VerifierIdRoute = VerifierIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => VerifierRoute,
 } as any)
 const FarmerBatchesRoute = FarmerBatchesRouteImport.update({
   id: '/batches',
@@ -64,19 +82,24 @@ export interface FileRoutesByFullPath {
   '/farmer': typeof FarmerRouteWithChildren
   '/login': typeof LoginRoute
   '/shop': typeof ShopRoute
-  '/verifier': typeof VerifierRoute
+  '/verifier': typeof VerifierRouteWithChildren
   '/farmer/add': typeof FarmerAddRoute
   '/farmer/batches': typeof FarmerBatchesRoute
+  '/verifier/$id': typeof VerifierIdRoute
+  '/verifier/queue': typeof VerifierQueueRoute
   '/farmer/': typeof FarmerIndexRoute
+  '/verifier/': typeof VerifierIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/shop': typeof ShopRoute
-  '/verifier': typeof VerifierRoute
   '/farmer/add': typeof FarmerAddRoute
   '/farmer/batches': typeof FarmerBatchesRoute
+  '/verifier/$id': typeof VerifierIdRoute
+  '/verifier/queue': typeof VerifierQueueRoute
   '/farmer': typeof FarmerIndexRoute
+  '/verifier': typeof VerifierIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -84,10 +107,13 @@ export interface FileRoutesById {
   '/farmer': typeof FarmerRouteWithChildren
   '/login': typeof LoginRoute
   '/shop': typeof ShopRoute
-  '/verifier': typeof VerifierRoute
+  '/verifier': typeof VerifierRouteWithChildren
   '/farmer/add': typeof FarmerAddRoute
   '/farmer/batches': typeof FarmerBatchesRoute
+  '/verifier/$id': typeof VerifierIdRoute
+  '/verifier/queue': typeof VerifierQueueRoute
   '/farmer/': typeof FarmerIndexRoute
+  '/verifier/': typeof VerifierIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -99,16 +125,21 @@ export interface FileRouteTypes {
     | '/verifier'
     | '/farmer/add'
     | '/farmer/batches'
+    | '/verifier/$id'
+    | '/verifier/queue'
     | '/farmer/'
+    | '/verifier/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/shop'
-    | '/verifier'
     | '/farmer/add'
     | '/farmer/batches'
+    | '/verifier/$id'
+    | '/verifier/queue'
     | '/farmer'
+    | '/verifier'
   id:
     | '__root__'
     | '/'
@@ -118,7 +149,10 @@ export interface FileRouteTypes {
     | '/verifier'
     | '/farmer/add'
     | '/farmer/batches'
+    | '/verifier/$id'
+    | '/verifier/queue'
     | '/farmer/'
+    | '/verifier/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -126,7 +160,7 @@ export interface RootRouteChildren {
   FarmerRoute: typeof FarmerRouteWithChildren
   LoginRoute: typeof LoginRoute
   ShopRoute: typeof ShopRoute
-  VerifierRoute: typeof VerifierRoute
+  VerifierRoute: typeof VerifierRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -166,12 +200,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verifier/': {
+      id: '/verifier/'
+      path: '/'
+      fullPath: '/verifier/'
+      preLoaderRoute: typeof VerifierIndexRouteImport
+      parentRoute: typeof VerifierRoute
+    }
     '/farmer/': {
       id: '/farmer/'
       path: '/'
       fullPath: '/farmer/'
       preLoaderRoute: typeof FarmerIndexRouteImport
       parentRoute: typeof FarmerRoute
+    }
+    '/verifier/queue': {
+      id: '/verifier/queue'
+      path: '/queue'
+      fullPath: '/verifier/queue'
+      preLoaderRoute: typeof VerifierQueueRouteImport
+      parentRoute: typeof VerifierRoute
+    }
+    '/verifier/$id': {
+      id: '/verifier/$id'
+      path: '/$id'
+      fullPath: '/verifier/$id'
+      preLoaderRoute: typeof VerifierIdRouteImport
+      parentRoute: typeof VerifierRoute
     }
     '/farmer/batches': {
       id: '/farmer/batches'
@@ -205,12 +260,28 @@ const FarmerRouteChildren: FarmerRouteChildren = {
 const FarmerRouteWithChildren =
   FarmerRoute._addFileChildren(FarmerRouteChildren)
 
+interface VerifierRouteChildren {
+  VerifierIdRoute: typeof VerifierIdRoute
+  VerifierQueueRoute: typeof VerifierQueueRoute
+  VerifierIndexRoute: typeof VerifierIndexRoute
+}
+
+const VerifierRouteChildren: VerifierRouteChildren = {
+  VerifierIdRoute: VerifierIdRoute,
+  VerifierQueueRoute: VerifierQueueRoute,
+  VerifierIndexRoute: VerifierIndexRoute,
+}
+
+const VerifierRouteWithChildren = VerifierRoute._addFileChildren(
+  VerifierRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FarmerRoute: FarmerRouteWithChildren,
   LoginRoute: LoginRoute,
   ShopRoute: ShopRoute,
-  VerifierRoute: VerifierRoute,
+  VerifierRoute: VerifierRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
