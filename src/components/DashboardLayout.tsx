@@ -53,6 +53,7 @@ export function DashboardLayout({
   const navigate = useNavigate();
   const user = useStore((s) => s.currentUser);
   const logout = useStore((s) => s.logout);
+  const demoId = useStore((s) => s.batches.find((b) => b.status === "verified")?.id ?? s.batches[0]?.id ?? "BATCH-DEMO");
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const navs = navsByRole[role];
   const meta = roleMeta[role];
@@ -102,7 +103,7 @@ export function DashboardLayout({
           })}
           <Link
             to="/verify/$id"
-            params={{ id: "BATCH-DEMO" }}
+            params={{ id: demoId }}
             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/60 transition hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             <ScanLine className="size-4" />
