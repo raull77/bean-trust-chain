@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Coffee } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { StatusBadge } from "@/components/StatusBadge";
 import { useStore } from "@/lib/store";
@@ -19,18 +19,25 @@ const filterLabels: Record<string, string> = {
 };
 
 function BatchesPage() {
-  const batches = useStore((s) => s.batches);
+  const user = useStore((s) => s.currentUser);
+  const allBatches = useStore((s) => s.batches);
+
+  // Hanya tampilkan batch milik petani yang sedang login
+  const myBatches = allBatches.filter((b) => b.farmerId === user?.id);
+
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "pending" | "verified" | "rejected">("all");
 
   const filtered = useMemo(() => {
-    return batches.filter((b) => {
-      if (filter !== "all" && b.status !== filter) return false;
-      if (q && !`${b.id} ${b.coffeeName} ${b.farmLocation}`.toLowerCase().includes(q.toLowerCase()))
-        return false;
-      return true;
-    });
-  }, [batches, q, filter]);
+    return myBatches
+      .filter((b) => (filter !== "all" ? b.status === filter : true))
+      .filter((b) =>
+        q
+          ? `${b.id} ${b.coffeeName} ${b.farmLocation}`.toLowerCase().includes(q.toLowerCase())
+          : true
+      )
+      .sort((a, b) => +new Date(b.submittedAt) - +new Date(a.submittedAt));
+  }, [myBatches, q, filter]);
 
   return (
     <DashboardLayout
@@ -48,7 +55,7 @@ function BatchesPage() {
       }
     >
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[220px]">
+        <div className="relative min-w-[220px] flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={q}
@@ -63,7 +70,9 @@ function BatchesPage() {
               key={f}
               onClick={() => setFilter(f)}
               className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                filter === f ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                filter === f
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {filterLabels[f]}
@@ -89,17 +98,46 @@ function BatchesPage() {
                 <td className="px-5 py-3 font-mono text-xs">{b.id}</td>
                 <td className="px-5 py-3">
                   <p className="font-medium">{b.coffeeName}</p>
-                  <p className="text-xs text-muted-foreground">{b.coffeeType} • {b.farmLocation}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {b.coffeeType} • {b.farmLocation}
+                  </p>
                 </td>
-                <td className="px-5 py-3 text-muted-foreground">{format(new Date(b.harvestDate), "d MMM yyyy", { locale: idLocale })}</td>
-                <td className="px-5 py-3"><StatusBadge status={b.status} /></td>
-                <td className="px-5 py-3"><StatusBadge status={b.distribution} /></td>
+                <td className="px-5 py-3 text-muted-foreground">
+                  {format(new Date(b.harvestDate), "d MMM yyyy", { locale: idLocale })}
+                </td>
+                <td className="px-5 py-3">
+                  <StatusBadge status={b.status} />
+                </td>
+                <td className="px-5 py-3">
+                  <StatusBadge status={b.distribution} />
+                </td>
               </tr>
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-5 py-12 text-center text-sm text-muted-foreground">
-                  Tidak ada batch ditemukan.
+                <td
+                  colSpan={5}
+                  className="px-5 py-12 text-center"
+                >
+                  {myBatches.length === 0 ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <Coffee className="size-10 text-muted-foreground/40" />
+                      <p className="text-sm text-muted-foreground">
+                        Anda belum mendaftarkan batch kopi.
+                      </p>
+                      <Link
+                        to="/farmer/add"
+                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
+                      >
+                        <Plus className="size-4" />
+                        Daftarkan Batch Pertama
+                      </Link>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Tidak ada batch yang cocok dengan pencarian.
+                    </p>
+                  )}
                 </td>
               </tr>
             )}

@@ -13,20 +13,26 @@ export const Route = createFileRoute("/farmer/")({
 
 function FarmerDashboard() {
   const user = useStore((s) => s.currentUser);
-  const batches = useStore((s) => s.batches);
-  const mine = batches;
+  const allBatches = useStore((s) => s.batches);
+
+  // Hanya tampilkan batch milik petani yang sedang login
+  const mine = allBatches.filter((b) => b.farmerId === user?.id);
 
   const total = mine.length;
   const verified = mine.filter((b) => b.status === "verified").length;
   const pending = mine.filter((b) => b.status === "pending").length;
   const distributed = mine.filter((b) => b.distribution !== "none").length;
 
-  const recent = mine.slice(0, 5);
+  const recent = [...mine]
+    .sort((a, b) => +new Date(b.submittedAt) - +new Date(a.submittedAt))
+    .slice(0, 5);
+
+  const firstName = user?.name.split(" ")[0] ?? "Petani";
 
   return (
     <DashboardLayout
       role="farmer"
-      title={`Selamat datang, ${user?.name.split(" ").slice(-1)[0] ?? "Petani"}`}
+      title={`Selamat datang, ${firstName}`}
       description="Ringkasan hasil panen kopi Anda dan perjalanannya dalam rantai pasok."
       actions={
         <Link
@@ -39,38 +45,86 @@ function FarmerDashboard() {
       }
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total Batch Kopi" value={total} icon={Coffee} tone="coffee" hint="Seluruh panen terdaftar" />
-        <StatCard label="Batch Terverifikasi" value={verified} icon={CheckCircle2} tone="success" hint="Disetujui pemerintah" />
-        <StatCard label="Menunggu Verifikasi" value={pending} icon={Clock} tone="warning" hint="Menunggu peninjauan" />
-        <StatCard label="Batch Didistribusikan" value={distributed} icon={Truck} tone="info" hint="Dikirim ke kedai kopi" />
+        <StatCard
+          label="Total Batch Kopi"
+          value={total}
+          icon={Coffee}
+          tone="coffee"
+          hint="Seluruh panen terdaftar"
+        />
+        <StatCard
+          label="Batch Terverifikasi"
+          value={verified}
+          icon={CheckCircle2}
+          tone="success"
+          hint="Disetujui pemerintah"
+        />
+        <StatCard
+          label="Menunggu Verifikasi"
+          value={pending}
+          icon={Clock}
+          tone="warning"
+          hint="Menunggu peninjauan"
+        />
+        <StatCard
+          label="Batch Didistribusikan"
+          value={distributed}
+          icon={Truck}
+          tone="info"
+          hint="Dikirim ke kedai kopi"
+        />
       </div>
 
       <div className="mt-6 rounded-2xl border bg-card shadow-sm">
         <div className="flex items-center justify-between border-b px-5 py-4">
           <div>
             <h2 className="text-base font-semibold">Panen Terbaru</h2>
-            <p className="text-xs text-muted-foreground">Batch terbaru yang Anda daftarkan.</p>
+            <p className="text-xs text-muted-foreground">
+              Batch terbaru yang Anda daftarkan.
+            </p>
           </div>
-          <Link to="/farmer/batches" className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+          <Link
+            to="/farmer/batches"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+          >
             Lihat semua <ArrowUpRight className="size-3.5" />
           </Link>
         </div>
         <div className="divide-y">
-          {recent.map((b) => (
-            <div key={b.id} className="flex flex-wrap items-center gap-4 px-5 py-4">
-              <div className="grid size-10 place-items-center rounded-xl bg-coffee/10 text-coffee">
-                <Coffee className="size-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{b.coffeeName}</p>
-                <p className="text-xs text-muted-foreground">
-                  {b.id} • {b.farmLocation} • {format(new Date(b.harvestDate), "d MMM yyyy", { locale: idLocale })}
-                </p>
-              </div>
-              <StatusBadge status={b.status} />
-              <StatusBadge status={b.distribution} />
+          {recent.length === 0 ? (
+            <div className="flex flex-col items-center gap-3 px-5 py-12 text-center">
+              <Coffee className="size-10 text-muted-foreground/40" />
+              <p className="text-sm text-muted-foreground">
+                Anda belum mendaftarkan batch kopi.
+              </p>
+              <Link
+                to="/farmer/add"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
+              >
+                <Plus className="size-4" />
+                Daftarkan Batch Pertama
+              </Link>
             </div>
-          ))}
+          ) : (
+            recent.map((b) => (
+              <div key={b.id} className="flex flex-wrap items-center gap-4 px-5 py-4">
+                <div className="grid size-10 place-items-center rounded-xl bg-coffee/10 text-coffee">
+                  <Coffee className="size-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{b.coffeeName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {b.id} • {b.farmLocation} •{" "}
+                    {format(new Date(b.harvestDate), "d MMM yyyy", {
+                      locale: idLocale,
+                    })}
+                  </p>
+                </div>
+                <StatusBadge status={b.status} />
+                <StatusBadge status={b.distribution} />
+              </div>
+            ))
+          )}
         </div>
       </div>
     </DashboardLayout>

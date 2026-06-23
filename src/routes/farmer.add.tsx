@@ -1,6 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Coffee, MapPin, Calendar, Scale, FileText, CheckCircle2 } from "lucide-react";
+import {
+  Coffee,
+  MapPin,
+  Calendar,
+  Scale,
+  FileText,
+  CheckCircle2,
+} from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useStore } from "@/lib/store";
 
@@ -28,7 +35,7 @@ function AddBatchPage() {
     e.preventDefault();
     const id = addBatch({
       ...form,
-      farmerId: user?.id ?? "u-farmer",
+      farmerId: user?.id ?? "",
       quantityKg: Number(form.quantityKg),
     });
     setSubmitted(id);
@@ -36,15 +43,21 @@ function AddBatchPage() {
 
   if (submitted) {
     return (
-      <DashboardLayout role="farmer" title="Batch terkirim" description="Menunggu verifikasi pemerintah.">
+      <DashboardLayout
+        role="farmer"
+        title="Batch Terkirim"
+        description="Batch Anda menunggu verifikasi dari petugas pemerintah."
+      >
         <div className="mx-auto max-w-xl rounded-2xl border bg-card p-8 text-center shadow-sm">
           <div className="mx-auto grid size-14 place-items-center rounded-full bg-success/15 text-success">
             <CheckCircle2 className="size-7" />
           </div>
           <h2 className="mt-4 text-xl font-semibold">Batch berhasil didaftarkan</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Batch Anda <span className="font-mono font-medium text-foreground">{submitted}</span> telah dikirim
-            dan kini berstatus <span className="font-medium text-warning-foreground">Menunggu Verifikasi</span>.
+            Batch{" "}
+            <span className="font-mono font-medium text-foreground">{submitted}</span> telah
+            dikirim dan saat ini berstatus{" "}
+            <span className="font-medium text-warning-foreground">Menunggu Verifikasi</span>.
           </p>
           <div className="mt-6 flex justify-center gap-3">
             <button
@@ -71,10 +84,11 @@ function AddBatchPage() {
   return (
     <DashboardLayout
       role="farmer"
-      title="Tambah batch kopi"
+      title="Tambah Batch Kopi"
       description="Daftarkan panen baru untuk diverifikasi dan ditelusuri."
     >
       <form onSubmit={submit} className="mx-auto max-w-3xl space-y-6">
+        {/* Informasi Kopi */}
         <div className="rounded-2xl border bg-card p-6 shadow-sm">
           <SectionTitle icon={Coffee} title="Informasi Kopi" />
           <div className="grid gap-4 md:grid-cols-2">
@@ -109,6 +123,7 @@ function AddBatchPage() {
           </div>
         </div>
 
+        {/* Informasi Petani */}
         <div className="rounded-2xl border bg-card p-6 shadow-sm">
           <SectionTitle icon={MapPin} title="Informasi Petani" />
           <div className="grid gap-4 md:grid-cols-2">
@@ -132,6 +147,7 @@ function AddBatchPage() {
           </div>
         </div>
 
+        {/* Detail Panen */}
         <div className="rounded-2xl border bg-card p-6 shadow-sm">
           <SectionTitle icon={Calendar} title="Detail Panen" />
           <div className="grid gap-4 md:grid-cols-2">
@@ -152,7 +168,9 @@ function AddBatchPage() {
                   min={1}
                   required
                   value={form.quantityKg}
-                  onChange={(e) => setForm({ ...form, quantityKg: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setForm({ ...form, quantityKg: Number(e.target.value) })
+                  }
                   className="w-full rounded-lg border bg-background px-3 py-2 pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
@@ -164,7 +182,9 @@ function AddBatchPage() {
                   required
                   rows={4}
                   value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
                   placeholder="Proses, profil rasa, ketinggian, sertifikasi…"
                   className="w-full rounded-lg border bg-background px-3 py-2 pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
@@ -215,7 +235,9 @@ function Field({
 }) {
   return (
     <label className={`block ${className}`}>
-      <span className="mb-1.5 block text-xs font-medium text-muted-foreground">{label}</span>
+      <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+        {label}
+      </span>
       {children}
     </label>
   );

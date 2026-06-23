@@ -10,6 +10,7 @@ import {
   BookOpen,
   LogOut,
   ScanLine,
+  Settings2,
 } from "lucide-react";
 import { useStore, type Role } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -29,12 +30,16 @@ const navsByRole: Record<Role, Array<{ to: string; label: string; icon: any; exa
     { to: "/shop", label: "Dasbor", icon: LayoutDashboard, exact: true },
     { to: "/shop/catalog", label: "Katalog Kopi", icon: BookOpen },
   ],
+  admin: [
+    { to: "/admin", label: "Dasbor", icon: LayoutDashboard, exact: true },
+  ],
 };
 
 const roleMeta: Record<Role, { title: string; subtitle: string; icon: any }> = {
   farmer: { title: "Portal Petani", subtitle: "Petani", icon: Coffee },
-  verifier: { title: "Petugas Verifikasi", subtitle: "Pemerintah", icon: ShieldCheck },
-  shop: { title: "Kedai Kopi", subtitle: "Kios Kopi", icon: Store },
+  verifier: { title: "Petugas Verifikasi", subtitle: "Instansi Pemerintah", icon: ShieldCheck },
+  shop: { title: "Kedai Kopi", subtitle: "Mitra Kedai", icon: Store },
+  admin: { title: "Panel Admin", subtitle: "Administrator", icon: Settings2 },
 };
 
 export function DashboardLayout({
@@ -53,7 +58,6 @@ export function DashboardLayout({
   const navigate = useNavigate();
   const user = useStore((s) => s.currentUser);
   const logout = useStore((s) => s.logout);
-  const demoId = useStore((s) => s.batches.find((b) => b.status === "verified")?.id ?? s.batches[0]?.id ?? "BATCH-DEMO");
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const navs = navsByRole[role];
   const meta = roleMeta[role];
@@ -64,9 +68,18 @@ export function DashboardLayout({
     navigate({ to: "/login" });
   };
 
+  const userInitials = user?.name
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase() ?? "?";
+
   return (
     <div className="flex min-h-screen w-full bg-background">
+      {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground md:flex">
+        {/* Branding */}
         <div className="flex items-center gap-2.5 px-5 py-5">
           <div className="grid size-9 place-items-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground">
             <Coffee className="size-5" />
@@ -77,6 +90,7 @@ export function DashboardLayout({
           </div>
         </div>
 
+        {/* Identitas Peran */}
         <div className="mx-3 mb-4 rounded-xl bg-sidebar-accent/60 p-3">
           <div className="flex items-center gap-2">
             <RoleIcon className="size-4 text-sidebar-primary" />
@@ -87,6 +101,7 @@ export function DashboardLayout({
           <p className="mt-1 text-sm font-semibold">{meta.title}</p>
         </div>
 
+        {/* Navigasi */}
         <nav className="flex-1 space-y-1 px-3">
           {navs.map((n) => {
             const active = n.exact ? pathname === n.to : pathname.startsWith(n.to);
@@ -98,7 +113,7 @@ export function DashboardLayout({
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition",
                   active
                     ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                 )}
               >
                 <n.icon className="size-4" />
@@ -106,29 +121,38 @@ export function DashboardLayout({
               </Link>
             );
           })}
+
+          {/* Verifikasi QR Publik */}
           <Link
-            to="/verify/$id"
-            params={{ id: demoId }}
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/60 transition hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            to="/verify/scan"
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition",
+              pathname.startsWith("/verify/scan")
+                ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            )}
           >
             <ScanLine className="size-4" />
-            Demo QR Publik
+            Verifikasi QR
           </Link>
         </nav>
 
+        {/* Profil Pengguna */}
         <div className="border-t border-sidebar-border p-3">
-          <div className="flex items-center gap-3 px-2 py-2">
-            <div className="grid size-9 place-items-center rounded-full bg-sidebar-accent text-sm font-semibold">
-              {user?.name.slice(0, 1) ?? "?"}
+          <div className="flex items-center gap-3 rounded-lg px-2 py-2">
+            <div className="grid size-9 shrink-0 place-items-center rounded-full bg-sidebar-primary/20 text-sm font-semibold text-sidebar-primary">
+              {userInitials}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{user?.name}</p>
-              <p className="truncate text-xs text-sidebar-foreground/60">{user?.organization}</p>
+              <p className="truncate text-sm font-medium">{user?.name ?? "—"}</p>
+              <p className="truncate text-xs text-sidebar-foreground/60">
+                {user?.organization ?? user?.email ?? "—"}
+              </p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="mt-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 transition hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 transition hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             <LogOut className="size-4" />
             Keluar
@@ -136,11 +160,15 @@ export function DashboardLayout({
         </div>
       </aside>
 
+      {/* Konten Utama */}
       <main className="flex min-w-0 flex-1 flex-col">
+        {/* Header Halaman */}
         <header className="flex flex-wrap items-center justify-between gap-4 border-b bg-card/60 px-6 py-5 backdrop-blur">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-            {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+            {description && (
+              <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+            )}
           </div>
           <div className="flex items-center gap-3">
             {actions}

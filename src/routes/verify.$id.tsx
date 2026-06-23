@@ -41,8 +41,8 @@ function PublicVerify() {
               <p className="text-[11px] text-muted-foreground">Verifikasi Publik</p>
             </div>
           </div>
-          <Link to="/login" className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> Kembali ke Masuk
+          <Link to="/verify/scan" className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="size-3.5" /> Cari Batch Lain
           </Link>
         </div>
       </header>
@@ -239,15 +239,26 @@ function NotFoundCard({ id }: { id: string }) {
       </div>
       <h1 className="mt-4 text-2xl font-semibold">Batch tidak ditemukan</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Batch <span className="font-mono">{id}</span> tidak terdaftar di sistem.
-        Kode QR ini mungkin palsu. Coba kode lain atau hubungi penjual.
+        Batch <span className="font-mono font-medium text-foreground">{id}</span> tidak
+        terdaftar dalam sistem CoffeeTrace. Periksa kembali ID Batch atau hubungi penjual.
       </p>
+      <Link
+        to="/verify/scan"
+        className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+      >
+        <ArrowLeft className="size-4" /> Cari Batch Lain
+      </Link>
     </div>
   );
 }
 
 function UnverifiedCard({ id, status }: { id: string; status: string }) {
-  const label = status === "pending" ? "Menunggu Verifikasi" : status === "rejected" ? "Ditolak" : status;
+  const label =
+    status === "pending"
+      ? "Menunggu Verifikasi"
+      : status === "rejected"
+        ? "Ditolak"
+        : status;
   return (
     <div className="rounded-3xl border border-warning/40 bg-card p-10 text-center shadow-sm">
       <div className="mx-auto grid size-14 place-items-center rounded-full bg-warning/20 text-warning-foreground">
@@ -255,9 +266,17 @@ function UnverifiedCard({ id, status }: { id: string; status: string }) {
       </div>
       <h1 className="mt-4 text-2xl font-semibold">Belum Terverifikasi</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Batch <span className="font-mono">{id}</span> saat ini berstatus <span className="font-medium text-foreground">{label}</span>.
-        Batch belum dicatat ke blockchain oleh petugas verifikasi pemerintah.
+        Batch <span className="font-mono font-medium text-foreground">{id}</span> saat ini
+        berstatus{" "}
+        <span className="font-medium text-foreground">{label}</span>.
+        Batch ini belum dicatat ke blockchain oleh petugas verifikasi pemerintah.
       </p>
+      <Link
+        to="/verify/scan"
+        className="mt-6 inline-flex items-center gap-2 rounded-lg border bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
+      >
+        <ArrowLeft className="size-4" /> Cari Batch Lain
+      </Link>
     </div>
   );
 }

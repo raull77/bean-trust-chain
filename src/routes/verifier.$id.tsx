@@ -1,4 +1,9 @@
-import { createFileRoute, useNavigate, Link, notFound } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  Link,
+  notFound,
+} from "@tanstack/react-router";
 import { useState } from "react";
 import {
   Coffee,
@@ -24,7 +29,9 @@ export const Route = createFileRoute("/verifier/$id")({
   component: VerifyDetail,
   notFoundComponent: () => (
     <DashboardLayout role="verifier" title="Batch tidak ditemukan">
-      <p className="text-sm text-muted-foreground">Batch yang diminta tidak tersedia.</p>
+      <p className="text-sm text-muted-foreground">
+        Batch yang diminta tidak tersedia.
+      </p>
     </DashboardLayout>
   ),
 });
@@ -46,10 +53,21 @@ function VerifyDetail() {
   if (!batch) throw notFound();
 
   const onApprove = () => {
-    verify(batch.id, form);
+    verify(batch.id, {
+      verifierName: form.verifierName,
+      verifierId: user?.id ?? "",
+      institution: form.institution,
+      notes: form.notes,
+    });
   };
+
   const onReject = () => {
-    reject(batch.id, form);
+    reject(batch.id, {
+      verifierName: form.verifierName,
+      verifierId: user?.id ?? "",
+      institution: form.institution,
+      notes: form.notes,
+    });
   };
 
   return (
@@ -69,6 +87,7 @@ function VerifyDetail() {
     >
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
+          {/* Header batch */}
           <div className="rounded-2xl border bg-card p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -77,25 +96,42 @@ function VerifyDetail() {
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold">{batch.coffeeName}</h2>
-                  <p className="text-sm text-muted-foreground">{batch.coffeeType} • {batch.id}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {batch.coffeeType} • {batch.id}
+                  </p>
                 </div>
               </div>
               <StatusBadge status={batch.status} />
             </div>
-            <p className="mt-4 text-sm text-muted-foreground">{batch.description}</p>
+            <p className="mt-4 text-sm text-muted-foreground">
+              {batch.description}
+            </p>
           </div>
 
+          {/* Detail */}
           <div className="grid gap-4 sm:grid-cols-2">
             <InfoCard icon={User} label="Informasi Petani">
               <Row label="Nama" value={batch.farmerName} />
-              <Row label="Dikirim" value={format(new Date(batch.submittedAt), "d MMM yyyy, HH:mm", { locale: idLocale })} />
+              <Row
+                label="Dikirim"
+                value={format(
+                  new Date(batch.submittedAt),
+                  "d MMM yyyy, HH:mm",
+                  { locale: idLocale }
+                )}
+              />
             </InfoCard>
             <InfoCard icon={MapPin} label="Lokasi Kebun">
               <Row label="Asal" value={batch.farmLocation} />
               <Row label="Jenis Kopi" value={batch.coffeeType} />
             </InfoCard>
             <InfoCard icon={Calendar} label="Informasi Panen">
-              <Row label="Tanggal" value={format(new Date(batch.harvestDate), "d MMMM yyyy", { locale: idLocale })} />
+              <Row
+                label="Tanggal"
+                value={format(new Date(batch.harvestDate), "d MMMM yyyy", {
+                  locale: idLocale,
+                })}
+              />
               <Row label="Jumlah" value={`${batch.quantityKg} kg`} />
             </InfoCard>
             <InfoCard icon={Scale} label="Metrik Batch">
@@ -104,6 +140,7 @@ function VerifyDetail() {
             </InfoCard>
           </div>
 
+          {/* Riwayat verifikasi jika sudah diproses */}
           {batch.verification && (
             <div className="rounded-2xl border bg-card p-6 shadow-sm">
               <div className="mb-4 flex items-center gap-2">
@@ -113,9 +150,19 @@ function VerifyDetail() {
                 <h3 className="text-base font-semibold">Informasi Verifikasi</h3>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <Row label="Nama Petugas" value={batch.verification.verifierName} />
+                <Row
+                  label="Nama Petugas"
+                  value={batch.verification.verifierName}
+                />
                 <Row label="Instansi" value={batch.verification.institution} />
-                <Row label="Tanggal Verifikasi" value={format(new Date(batch.verification.verifiedAt), "d MMMM yyyy, HH:mm", { locale: idLocale })} />
+                <Row
+                  label="Tanggal Verifikasi"
+                  value={format(
+                    new Date(batch.verification.verifiedAt),
+                    "d MMMM yyyy, HH:mm",
+                    { locale: idLocale }
+                  )}
+                />
                 <Row label="Status" value={statusLabel(batch.status)} />
                 {batch.verification.notes && (
                   <div className="sm:col-span-2">
@@ -126,6 +173,7 @@ function VerifyDetail() {
             </div>
           )}
 
+          {/* Catatan blockchain */}
           {batch.status === "verified" && batch.blockchain && (
             <div className="rounded-2xl border border-success/30 bg-gradient-to-br from-success/10 to-card p-6 shadow-sm">
               <div className="flex items-center gap-3">
@@ -134,46 +182,85 @@ function VerifyDetail() {
                 </div>
                 <div>
                   <h3 className="text-base font-semibold">Catatan Blockchain</h3>
-                  <p className="text-xs text-muted-foreground">Tercatat permanen pada ledger.</p>
+                  <p className="text-xs text-muted-foreground">
+                    Tercatat permanen pada ledger.
+                  </p>
                 </div>
                 <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-success px-3 py-1 text-xs font-semibold text-success-foreground">
                   <ShieldCheck className="size-3.5" /> Asli
                 </span>
               </div>
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <BlockField icon={Blocks} label="Nomor Blok" value={`#${batch.blockchain.blockNumber.toLocaleString("id-ID")}`} />
-                <BlockField icon={Clock3} label="Waktu Pencatatan" value={`${format(new Date(batch.blockchain.timestamp), "d MMM yyyy, HH:mm:ss", { locale: idLocale })} WIB`} />
-                <BlockField icon={Hash} label="Hash Sebelumnya" value={batch.blockchain.previousHash} mono full />
-                <BlockField icon={Hash} label="Hash Saat Ini" value={batch.blockchain.currentHash} mono full />
+                <BlockField
+                  icon={Blocks}
+                  label="Nomor Blok"
+                  value={`#${batch.blockchain.blockNumber.toLocaleString("id-ID")}`}
+                />
+                <BlockField
+                  icon={Clock3}
+                  label="Waktu Pencatatan"
+                  value={`${format(
+                    new Date(batch.blockchain.timestamp),
+                    "d MMM yyyy, HH:mm:ss",
+                    { locale: idLocale }
+                  )} WIB`}
+                />
+                <BlockField
+                  icon={Hash}
+                  label="Hash Sebelumnya"
+                  value={batch.blockchain.previousHash}
+                  mono
+                  full
+                />
+                <BlockField
+                  icon={Hash}
+                  label="Hash Saat Ini"
+                  value={batch.blockchain.currentHash}
+                  mono
+                  full
+                />
               </div>
             </div>
           )}
         </div>
 
+        {/* Panel Verifikasi */}
         <div className="space-y-4">
           <div className="rounded-2xl border bg-card p-6 shadow-sm">
             <h3 className="text-base font-semibold">Formulir Verifikasi</h3>
-            <p className="text-xs text-muted-foreground">Catat keputusan Anda dan simpan ke blockchain.</p>
+            <p className="text-xs text-muted-foreground">
+              Catat keputusan Anda dan simpan ke blockchain.
+            </p>
 
             <div className="mt-4 space-y-3">
               <label className="block">
-                <span className="mb-1 block text-xs font-medium text-muted-foreground">Nama Petugas Verifikasi</span>
+                <span className="mb-1 block text-xs font-medium text-muted-foreground">
+                  Nama Petugas Verifikasi
+                </span>
                 <input
                   value={form.verifierName}
-                  onChange={(e) => setForm({ ...form, verifierName: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, verifierName: e.target.value })
+                  }
                   className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs font-medium text-muted-foreground">Nama Instansi</span>
+                <span className="mb-1 block text-xs font-medium text-muted-foreground">
+                  Nama Instansi
+                </span>
                 <input
                   value={form.institution}
-                  onChange={(e) => setForm({ ...form, institution: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, institution: e.target.value })
+                  }
                   className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs font-medium text-muted-foreground">Catatan Verifikasi</span>
+                <span className="mb-1 block text-xs font-medium text-muted-foreground">
+                  Catatan Verifikasi
+                </span>
                 <textarea
                   rows={4}
                   value={form.notes}
@@ -201,9 +288,21 @@ function VerifyDetail() {
               </div>
             ) : (
               <div className="mt-5 rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
-                Batch ini sudah <span className="font-medium text-foreground">{statusLabel(batch.status)}</span>
+                Batch ini sudah{" "}
+                <span className="font-medium text-foreground">
+                  {statusLabel(batch.status)}
+                </span>
                 {batch.verification && (
-                  <> pada {format(new Date(batch.verification.verifiedAt), "d MMM yyyy", { locale: idLocale })} oleh {batch.verification.verifierName}.</>
+                  <>
+                    {" "}
+                    pada{" "}
+                    {format(
+                      new Date(batch.verification.verifiedAt),
+                      "d MMM yyyy",
+                      { locale: idLocale }
+                    )}{" "}
+                    oleh {batch.verification.verifierName}.
+                  </>
                 )}
               </div>
             )}
@@ -225,10 +324,24 @@ function VerifyDetail() {
 }
 
 function statusLabel(s: string) {
-  return s === "verified" ? "Terverifikasi" : s === "pending" ? "Menunggu Verifikasi" : s === "rejected" ? "Ditolak" : s;
+  return s === "verified"
+    ? "Terverifikasi"
+    : s === "pending"
+      ? "Menunggu Verifikasi"
+      : s === "rejected"
+        ? "Ditolak"
+        : s;
 }
 
-function InfoCard({ icon: Icon, label, children }: { icon: any; label: string; children: React.ReactNode }) {
+function InfoCard({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: any;
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="rounded-2xl border bg-card p-5 shadow-sm">
       <div className="mb-3 flex items-center gap-2">
@@ -242,22 +355,48 @@ function InfoCard({ icon: Icon, label, children }: { icon: any; label: string; c
   );
 }
 
-function Row({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+function Row({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
   return (
     <div className="flex items-start justify-between gap-3 text-sm">
       <span className="text-muted-foreground">{label}</span>
-      <span className={`text-right ${mono ? "font-mono text-xs" : ""}`}>{value}</span>
+      <span className={`text-right ${mono ? "font-mono text-xs" : ""}`}>
+        {value}
+      </span>
     </div>
   );
 }
 
-function BlockField({ icon: Icon, label, value, mono, full }: { icon: any; label: string; value: string; mono?: boolean; full?: boolean }) {
+function BlockField({
+  icon: Icon,
+  label,
+  value,
+  mono,
+  full,
+}: {
+  icon: any;
+  label: string;
+  value: string;
+  mono?: boolean;
+  full?: boolean;
+}) {
   return (
-    <div className={`rounded-xl border bg-card/60 p-3 ${full ? "sm:col-span-2" : ""}`}>
+    <div
+      className={`rounded-xl border bg-card/60 p-3 ${full ? "sm:col-span-2" : ""}`}
+    >
       <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
         <Icon className="size-3.5" /> {label}
       </div>
-      <div className={`text-sm font-medium ${mono ? "font-mono break-all" : ""}`}>
+      <div
+        className={`text-sm font-medium ${mono ? "font-mono break-all" : ""}`}
+      >
         {mono ? <span title={value}>{shortHash(value)}</span> : value}
       </div>
     </div>
