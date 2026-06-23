@@ -26,15 +26,15 @@ function CatalogPage() {
   return (
     <DashboardLayout
       role="shop"
-      title="Verified coffee catalog"
-      description="Browse all government-verified batches and trace their full journey."
+      title="Katalog Kopi Terverifikasi"
+      description="Telusuri seluruh batch yang sudah diverifikasi pemerintah serta riwayat perjalanannya."
     >
       <div className="relative mb-5 max-w-md">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search by name, farmer, or origin…"
+          placeholder="Cari berdasarkan nama, petani, atau asal…"
           className="w-full rounded-lg border bg-card px-3 py-2 pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
         />
       </div>
@@ -77,14 +77,14 @@ function CatalogPage() {
                   params={{ id: b.id }}
                   className="flex-1 rounded-lg bg-primary px-3 py-2 text-center text-xs font-semibold text-primary-foreground transition hover:bg-primary/90"
                 >
-                  View Traceability
+                  Lihat Telusur
                 </Link>
                 {b.distribution !== "received" && (
                   <button
-                    onClick={() => receiveBatch(b.id, user?.organization ?? "Coffee Shop")}
+                    onClick={() => receiveBatch(b.id, user?.organization ?? "Kedai Kopi")}
                     className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-3 py-2 text-xs font-medium hover:bg-accent"
                   >
-                    <PackageCheck className="size-3.5" /> Receive
+                    <PackageCheck className="size-3.5" /> Terima
                   </button>
                 )}
               </div>
@@ -93,7 +93,7 @@ function CatalogPage() {
         ))}
         {verified.length === 0 && (
           <p className="col-span-full rounded-2xl border bg-card py-12 text-center text-sm text-muted-foreground">
-            No verified coffee available yet.
+            Belum ada kopi terverifikasi yang tersedia.
           </p>
         )}
       </div>

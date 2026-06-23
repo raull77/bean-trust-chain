@@ -5,10 +5,18 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { StatusBadge } from "@/components/StatusBadge";
 import { useStore } from "@/lib/store";
 import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 
 export const Route = createFileRoute("/farmer/batches")({
   component: BatchesPage,
 });
+
+const filterLabels: Record<string, string> = {
+  all: "Semua",
+  pending: "Menunggu",
+  verified: "Terverifikasi",
+  rejected: "Ditolak",
+};
 
 function BatchesPage() {
   const batches = useStore((s) => s.batches);
@@ -27,15 +35,15 @@ function BatchesPage() {
   return (
     <DashboardLayout
       role="farmer"
-      title="My coffee batches"
-      description="All batches you have registered for verification."
+      title="Daftar Batch Kopi Saya"
+      description="Seluruh batch yang Anda daftarkan untuk verifikasi."
       actions={
         <Link
           to="/farmer/add"
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:bg-primary/90"
         >
           <Plus className="size-4" />
-          New batch
+          Tambah Batch
         </Link>
       }
     >
@@ -45,7 +53,7 @@ function BatchesPage() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search by batch, coffee, or location…"
+            placeholder="Cari berdasarkan batch, kopi, atau lokasi…"
             className="w-full rounded-lg border bg-card px-3 py-2 pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
@@ -54,11 +62,11 @@ function BatchesPage() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition ${
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
                 filter === f ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {f}
+              {filterLabels[f]}
             </button>
           ))}
         </div>
@@ -68,11 +76,11 @@ function BatchesPage() {
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
-              <th className="px-5 py-3">Batch ID</th>
-              <th className="px-5 py-3">Coffee Name</th>
-              <th className="px-5 py-3">Harvest Date</th>
-              <th className="px-5 py-3">Verification</th>
-              <th className="px-5 py-3">Distribution</th>
+              <th className="px-5 py-3">ID Batch</th>
+              <th className="px-5 py-3">Nama Kopi</th>
+              <th className="px-5 py-3">Tanggal Panen</th>
+              <th className="px-5 py-3">Verifikasi</th>
+              <th className="px-5 py-3">Distribusi</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -83,7 +91,7 @@ function BatchesPage() {
                   <p className="font-medium">{b.coffeeName}</p>
                   <p className="text-xs text-muted-foreground">{b.coffeeType} • {b.farmLocation}</p>
                 </td>
-                <td className="px-5 py-3 text-muted-foreground">{format(new Date(b.harvestDate), "d MMM yyyy")}</td>
+                <td className="px-5 py-3 text-muted-foreground">{format(new Date(b.harvestDate), "d MMM yyyy", { locale: idLocale })}</td>
                 <td className="px-5 py-3"><StatusBadge status={b.status} /></td>
                 <td className="px-5 py-3"><StatusBadge status={b.distribution} /></td>
               </tr>
@@ -91,7 +99,7 @@ function BatchesPage() {
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-5 py-12 text-center text-sm text-muted-foreground">
-                  No batches found.
+                  Tidak ada batch ditemukan.
                 </td>
               </tr>
             )}

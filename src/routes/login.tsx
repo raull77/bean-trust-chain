@@ -5,8 +5,8 @@ import { useStore, type Role } from "@/lib/store";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Sign in — CoffeeTrace" },
-      { name: "description", content: "Role-based sign-in for CoffeeTrace blockchain coffee traceability." },
+      { title: "Masuk — CoffeeTrace" },
+      { name: "description", content: "Masuk berbasis peran untuk CoffeeTrace, telusur kopi berbasis blockchain." },
     ],
   }),
   component: LoginPage,
@@ -15,25 +15,25 @@ export const Route = createFileRoute("/login")({
 const roles: Array<{ role: Role; title: string; subtitle: string; desc: string; icon: any; tint: string }> = [
   {
     role: "farmer",
-    title: "Farmer",
-    subtitle: "Petani",
-    desc: "Register harvested coffee batches and track their journey from farm to shop.",
+    title: "Petani",
+    subtitle: "Farmer",
+    desc: "Daftarkan batch kopi hasil panen dan pantau perjalanannya hingga kedai kopi.",
     icon: Coffee,
     tint: "from-coffee/15 to-coffee/5 text-coffee",
   },
   {
     role: "verifier",
-    title: "Government Verifier",
+    title: "Petugas Verifikasi",
     subtitle: "Pemerintah",
-    desc: "Validate authenticity and seal batches into the blockchain ledger.",
+    desc: "Validasi keaslian kopi dan catat batch ke dalam ledger blockchain.",
     icon: ShieldCheck,
     tint: "from-primary/15 to-primary/5 text-primary",
   },
   {
     role: "shop",
-    title: "Coffee Shop",
-    subtitle: "Kios Kopi",
-    desc: "Browse verified beans and receive shipments with full provenance.",
+    title: "Kedai Kopi",
+    subtitle: "Coffee Shop",
+    desc: "Telusuri biji kopi terverifikasi dan terima pengiriman dengan riwayat lengkap.",
     icon: Store,
     tint: "from-info/15 to-info/5 text-info",
   },
@@ -60,12 +60,12 @@ function LoginPage() {
             </div>
             <div>
               <p className="text-lg font-semibold tracking-tight">CoffeeTrace</p>
-              <p className="text-xs text-muted-foreground">Blockchain coffee traceability</p>
+              <p className="text-xs text-muted-foreground">Telusur kopi berbasis blockchain</p>
             </div>
           </div>
           <span className="hidden items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground md:inline-flex">
             <Sparkles className="size-3.5 text-primary" />
-            Demo Environment
+            Lingkungan Demo
           </span>
         </header>
 
@@ -73,22 +73,22 @@ function LoginPage() {
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
               <span className="size-1.5 rounded-full bg-success" />
-              From the farmer's hand to your cup
+              Dari tangan petani hingga ke cangkir Anda
             </p>
             <h1 className="mt-5 text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-              Every bean, <span className="text-primary">verified</span>.<br />
-              Every batch, <span className="text-coffee">on-chain</span>.
+              Setiap biji, <span className="text-primary">terverifikasi</span>.<br />
+              Setiap batch, <span className="text-coffee">tercatat di blockchain</span>.
             </h1>
             <p className="mt-4 max-w-md text-base text-muted-foreground">
-              CoffeeTrace connects farmers, government verifiers, and coffee shops in a single
-              transparent supply chain — secured by tamper-evident blockchain records.
+              CoffeeTrace menghubungkan petani, petugas verifikasi pemerintah, dan kedai kopi
+              dalam satu rantai pasok transparan — diamankan oleh catatan blockchain yang tidak dapat diubah.
             </p>
 
             <div className="mt-8 grid grid-cols-3 gap-3 text-center">
               {[
-                { k: "1,240+", v: "Batches traced" },
-                { k: "97.3%", v: "Verification rate" },
-                { k: "184", v: "Partner farms" },
+                { k: "1.240+", v: "Batch tertelusur" },
+                { k: "97,3%", v: "Tingkat verifikasi" },
+                { k: "184", v: "Kebun mitra" },
               ].map((s) => (
                 <div key={s.v} className="rounded-xl border bg-card/70 p-3 backdrop-blur">
                   <p className="text-xl font-semibold text-foreground">{s.k}</p>
@@ -99,7 +99,7 @@ function LoginPage() {
           </div>
 
           <div className="space-y-3">
-            <p className="text-sm font-medium text-muted-foreground">Choose your role to sign in</p>
+            <p className="text-sm font-medium text-muted-foreground">Pilih peran Anda untuk masuk</p>
             {roles.map((r) => (
               <button
                 key={r.role}
@@ -122,7 +122,7 @@ function LoginPage() {
               </button>
             ))}
             <p className="px-1 pt-2 text-xs text-muted-foreground">
-              Demo logins are pre-populated — no password required.
+              Akun demo sudah tersedia — tanpa kata sandi.
             </p>
           </div>
         </div>

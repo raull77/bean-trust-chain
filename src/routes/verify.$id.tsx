@@ -2,17 +2,18 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { QRCodeSVG } from "qrcode.react";
 import {
   Coffee, ShieldCheck, MapPin, Calendar, User, Blocks, Hash, Clock3,
-  Sprout, FileCheck2, Store as StoreIcon, ArrowLeft, AlertTriangle,
+  Sprout, FileCheck2, Store as StoreIcon, Truck, ArrowLeft, AlertTriangle,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { shortHash } from "@/lib/blockchain";
 import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 
 export const Route = createFileRoute("/verify/$id")({
   head: ({ params }) => ({
     meta: [
-      { title: `Verify ${params.id} — CoffeeTrace` },
-      { name: "description", content: "Public coffee authenticity verification, sealed by blockchain." },
+      { title: `Verifikasi ${params.id} — CoffeeTrace` },
+      { name: "description", content: "Halaman verifikasi keaslian kopi publik, diamankan oleh blockchain." },
     ],
   }),
   component: PublicVerify,
@@ -37,11 +38,11 @@ function PublicVerify() {
             </div>
             <div>
               <p className="text-sm font-semibold">CoffeeTrace</p>
-              <p className="text-[11px] text-muted-foreground">Public verification</p>
+              <p className="text-[11px] text-muted-foreground">Verifikasi Publik</p>
             </div>
           </div>
           <Link to="/login" className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> Back to sign in
+            <ArrowLeft className="size-3.5" /> Kembali ke Masuk
           </Link>
         </div>
       </header>
@@ -70,7 +71,7 @@ function VerifiedCard({ batch, verifyUrl }: { batch: NonNullable<ReturnType<type
             </div>
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-success px-3 py-1 text-xs font-semibold uppercase tracking-wide text-success-foreground">
-                <ShieldCheck className="size-3.5" /> Authentic & Verified
+                <ShieldCheck className="size-3.5" /> Asli dan Terverifikasi
               </span>
               <h1 className="mt-3 text-3xl font-semibold tracking-tight">{batch.coffeeName}</h1>
               <p className="mt-1 text-sm text-muted-foreground">{batch.coffeeType} • Batch <span className="font-mono">{batch.id}</span></p>
@@ -78,50 +79,69 @@ function VerifiedCard({ batch, verifyUrl }: { batch: NonNullable<ReturnType<type
           </div>
           <div className="rounded-2xl border bg-card p-3 shadow-sm">
             <QRCodeSVG value={verifyUrl} size={120} bgColor="transparent" fgColor="#1a1a1a" level="M" />
-            <p className="mt-2 text-center text-[10px] text-muted-foreground">Scan to re-verify</p>
+            <p className="mt-2 text-center text-[10px] text-muted-foreground">Pindai untuk verifikasi ulang</p>
           </div>
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <Section title="Coffee Information" icon={Coffee}>
-            <Pair label="Coffee Name" value={batch.coffeeName} />
-            <Pair label="Coffee Type" value={batch.coffeeType} />
-            <Pair label="Batch ID" value={batch.id} mono />
-            <Pair label="Origin Location" value={batch.farmLocation} />
-            <Pair label="Harvest Date" value={format(new Date(batch.harvestDate), "d MMMM yyyy")} />
-            <Pair label="Quantity" value={`${batch.quantityKg} kg`} />
+          <Section title="Informasi Kopi" icon={Coffee}>
+            <Pair label="Nama Kopi" value={batch.coffeeName} />
+            <Pair label="Jenis Kopi" value={batch.coffeeType} />
+            <Pair label="ID Batch" value={batch.id} mono />
+            <Pair label="Lokasi Asal" value={batch.farmLocation} />
+            <Pair label="Tanggal Panen" value={format(new Date(batch.harvestDate), "d MMMM yyyy", { locale: idLocale })} />
+            <Pair label="Jumlah" value={`${batch.quantityKg} kg`} />
           </Section>
 
-          <Section title="Farmer Information" icon={User}>
-            <Pair label="Farmer Name" value={batch.farmerName} />
-            <Pair label="Farm Location" value={batch.farmLocation} />
+          <Section title="Informasi Petani" icon={User}>
+            <Pair label="Nama Petani" value={batch.farmerName} />
+            <Pair label="Lokasi Kebun" value={batch.farmLocation} />
           </Section>
 
           {batch.verification && (
-            <Section title="Verification Information" icon={ShieldCheck}>
-              <Pair label="Government Institution" value={batch.verification.institution} />
-              <Pair label="Verifier" value={batch.verification.verifierName} />
-              <Pair label="Verification Date" value={format(new Date(batch.verification.verifiedAt), "d MMMM yyyy, HH:mm")} />
-              <Pair label="Notes" value={batch.verification.notes} />
+            <Section title="Informasi Verifikasi" icon={ShieldCheck}>
+              <Pair label="Nama Petugas Verifikasi" value={batch.verification.verifierName} />
+              <Pair label="Instansi" value={batch.verification.institution} />
+              <Pair label="Tanggal Verifikasi" value={format(new Date(batch.verification.verifiedAt), "d MMMM yyyy, HH:mm", { locale: idLocale })} />
+              <Pair label="Status" value="Terverifikasi" />
+              {batch.verification.notes && (
+                <div className="sm:col-span-2">
+                  <Pair label="Catatan" value={batch.verification.notes} />
+                </div>
+              )}
             </Section>
           )}
 
-          <Section title="Supply Chain Timeline" icon={Sprout}>
-            <ol className="mt-2 space-y-4">
-              <TimelineStep icon={Sprout} title="Farmer Registered Batch" desc={`${batch.farmerName} • ${batch.farmLocation}`} date={batch.submittedAt} done />
+          <Section title="Riwayat Rantai Pasok" icon={Sprout}>
+            <ol className="mt-2 space-y-4 sm:col-span-2">
+              <TimelineStep icon={Sprout} title="Petani Mendaftarkan Kopi" desc={`${batch.farmerName} • ${batch.farmLocation}`} date={batch.submittedAt} done />
               <TimelineStep
                 icon={FileCheck2}
-                title="Government Verified Batch"
-                desc={batch.verification?.institution ?? ""}
+                title="Petugas Verifikasi Memeriksa Data"
+                desc={batch.verification?.institution ?? "Menunggu peninjauan"}
                 date={batch.verification?.verifiedAt}
-                done
+                done={!!batch.verification}
+              />
+              <TimelineStep
+                icon={ShieldCheck}
+                title="Kopi Dinyatakan Terverifikasi"
+                desc="Tercatat permanen di blockchain"
+                date={batch.verification?.verifiedAt}
+                done={batch.status === "verified"}
+              />
+              <TimelineStep
+                icon={Truck}
+                title="Kedai Kopi Menerima Produk"
+                desc={batch.shopName ?? "Menunggu pengiriman"}
+                date={batch.receivedAt}
+                done={batch.distribution === "received"}
               />
               <TimelineStep
                 icon={StoreIcon}
-                title="Coffee Shop Received Batch"
-                desc={batch.shopName ?? "Pending"}
+                title="Produk Siap Dijual"
+                desc={batch.distribution === "received" ? "Tersedia untuk pelanggan" : "Belum tersedia"}
                 date={batch.receivedAt}
                 done={batch.distribution === "received"}
               />
@@ -137,25 +157,25 @@ function VerifiedCard({ batch, verifyUrl }: { batch: NonNullable<ReturnType<type
                   <Blocks className="size-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold">Blockchain Verification</h3>
-                  <p className="text-xs text-muted-foreground">Immutable ledger entry</p>
+                  <h3 className="text-sm font-semibold">Catatan Blockchain</h3>
+                  <p className="text-xs text-muted-foreground">Entri ledger permanen</p>
                 </div>
               </div>
               <div className="mt-5 space-y-3">
-                <BField icon={Blocks} label="Block Number" value={`#${batch.blockchain.blockNumber.toLocaleString()}`} />
-                <BField icon={Clock3} label="Timestamp" value={format(new Date(batch.blockchain.timestamp), "d MMM yyyy, HH:mm:ss")} />
-                <BField icon={Hash} label="Previous Hash" value={shortHash(batch.blockchain.previousHash)} mono />
-                <BField icon={Hash} label="Current Hash" value={shortHash(batch.blockchain.currentHash)} mono />
+                <BField icon={Blocks} label="Nomor Blok" value={`#${batch.blockchain.blockNumber.toLocaleString("id-ID")}`} />
+                <BField icon={Clock3} label="Waktu Pencatatan" value={`${format(new Date(batch.blockchain.timestamp), "d MMM yyyy, HH:mm:ss", { locale: idLocale })} WIB`} />
+                <BField icon={Hash} label="Hash Sebelumnya" value={shortHash(batch.blockchain.previousHash)} mono />
+                <BField icon={Hash} label="Hash Saat Ini" value={shortHash(batch.blockchain.currentHash)} mono />
               </div>
               <div className="mt-5 rounded-xl bg-success px-4 py-3 text-center text-sm font-semibold uppercase tracking-wide text-success-foreground shadow-sm">
-                ✓ Authentic and Verified
+                ✓ Asli dan Terverifikasi
               </div>
             </div>
           )}
 
           <div className="rounded-2xl border bg-card p-5 text-xs text-muted-foreground">
-            This page is publicly accessible. Anyone can scan the QR code on the
-            coffee packaging to re-verify provenance against the on-chain record.
+            Halaman ini dapat diakses publik. Siapa pun dapat memindai kode QR pada
+            kemasan kopi untuk memverifikasi ulang asal-usulnya pada catatan blockchain.
           </div>
         </div>
       </div>
@@ -194,7 +214,7 @@ function TimelineStep({ icon: Icon, title, desc, date, done }: { icon: any; titl
       </div>
       <div>
         <p className="text-sm font-medium">{title}</p>
-        <p className="text-xs text-muted-foreground">{desc}{date ? ` • ${format(new Date(date), "d MMM yyyy")}` : ""}</p>
+        <p className="text-xs text-muted-foreground">{desc}{date ? ` • ${format(new Date(date), "d MMM yyyy", { locale: idLocale })}` : ""}</p>
       </div>
     </li>
   );
@@ -217,25 +237,26 @@ function NotFoundCard({ id }: { id: string }) {
       <div className="mx-auto grid size-14 place-items-center rounded-full bg-destructive/10 text-destructive">
         <AlertTriangle className="size-7" />
       </div>
-      <h1 className="mt-4 text-2xl font-semibold">Batch not found</h1>
+      <h1 className="mt-4 text-2xl font-semibold">Batch tidak ditemukan</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        We couldn't find batch <span className="font-mono">{id}</span> in the registry.
-        This QR code may be counterfeit. Try a different code or contact the seller.
+        Batch <span className="font-mono">{id}</span> tidak terdaftar di sistem.
+        Kode QR ini mungkin palsu. Coba kode lain atau hubungi penjual.
       </p>
     </div>
   );
 }
 
 function UnverifiedCard({ id, status }: { id: string; status: string }) {
+  const label = status === "pending" ? "Menunggu Verifikasi" : status === "rejected" ? "Ditolak" : status;
   return (
     <div className="rounded-3xl border border-warning/40 bg-card p-10 text-center shadow-sm">
       <div className="mx-auto grid size-14 place-items-center rounded-full bg-warning/20 text-warning-foreground">
         <AlertTriangle className="size-7" />
       </div>
-      <h1 className="mt-4 text-2xl font-semibold">Not yet verified</h1>
+      <h1 className="mt-4 text-2xl font-semibold">Belum Terverifikasi</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Batch <span className="font-mono">{id}</span> is currently <span className="font-medium capitalize text-foreground">{status}</span>.
-        It has not been sealed onto the blockchain by a government verifier.
+        Batch <span className="font-mono">{id}</span> saat ini berstatus <span className="font-medium text-foreground">{label}</span>.
+        Batch belum dicatat ke blockchain oleh petugas verifikasi pemerintah.
       </p>
     </div>
   );

@@ -5,10 +5,18 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { StatusBadge } from "@/components/StatusBadge";
 import { useStore } from "@/lib/store";
 import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 
 export const Route = createFileRoute("/verifier/queue")({
   component: QueuePage,
 });
+
+const filterLabels: Record<string, string> = {
+  pending: "Menunggu",
+  verified: "Terverifikasi",
+  rejected: "Ditolak",
+  all: "Semua",
+};
 
 function QueuePage() {
   const batches = useStore((s) => s.batches);
@@ -23,14 +31,14 @@ function QueuePage() {
   }, [batches, q, filter]);
 
   return (
-    <DashboardLayout role="verifier" title="Verification queue" description="Review and authenticate submitted coffee batches.">
+    <DashboardLayout role="verifier" title="Antrian Verifikasi" description="Tinjau dan otentikasi batch kopi yang masuk.">
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[220px]">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search batches, farmers, locations…"
+            placeholder="Cari batch, petani, atau lokasi…"
             className="w-full rounded-lg border bg-card px-3 py-2 pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
@@ -39,11 +47,11 @@ function QueuePage() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition ${
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
                 filter === f ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {f}
+              {filterLabels[f]}
             </button>
           ))}
         </div>
@@ -53,13 +61,13 @@ function QueuePage() {
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
-              <th className="px-5 py-3">Batch ID</th>
-              <th className="px-5 py-3">Coffee Name</th>
-              <th className="px-5 py-3">Farmer</th>
-              <th className="px-5 py-3">Location</th>
-              <th className="px-5 py-3">Harvest</th>
+              <th className="px-5 py-3">ID Batch</th>
+              <th className="px-5 py-3">Nama Kopi</th>
+              <th className="px-5 py-3">Petani</th>
+              <th className="px-5 py-3">Lokasi</th>
+              <th className="px-5 py-3">Tanggal Panen</th>
               <th className="px-5 py-3">Status</th>
-              <th className="px-5 py-3 text-right">Actions</th>
+              <th className="px-5 py-3 text-right">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -69,7 +77,7 @@ function QueuePage() {
                 <td className="px-5 py-3 font-medium">{b.coffeeName}</td>
                 <td className="px-5 py-3 text-muted-foreground">{b.farmerName}</td>
                 <td className="px-5 py-3 text-muted-foreground">{b.farmLocation}</td>
-                <td className="px-5 py-3 text-muted-foreground">{format(new Date(b.harvestDate), "d MMM yyyy")}</td>
+                <td className="px-5 py-3 text-muted-foreground">{format(new Date(b.harvestDate), "d MMM yyyy", { locale: idLocale })}</td>
                 <td className="px-5 py-3"><StatusBadge status={b.status} /></td>
                 <td className="px-5 py-3 text-right">
                   <Link
@@ -78,7 +86,7 @@ function QueuePage() {
                     className="inline-flex items-center gap-1.5 rounded-md border bg-background px-2.5 py-1.5 text-xs font-medium hover:bg-accent"
                   >
                     <Eye className="size-3.5" />
-                    View details
+                    Lihat Detail
                   </Link>
                 </td>
               </tr>
