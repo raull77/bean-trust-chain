@@ -18,12 +18,13 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { useStore } from "@/lib/store";
 import { shortHash } from "@/lib/blockchain";
 import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 
 export const Route = createFileRoute("/verifier/$id")({
   component: VerifyDetail,
   notFoundComponent: () => (
-    <DashboardLayout role="verifier" title="Batch not found">
-      <p className="text-sm text-muted-foreground">The requested batch does not exist.</p>
+    <DashboardLayout role="verifier" title="Batch tidak ditemukan">
+      <p className="text-sm text-muted-foreground">Batch yang diminta tidak tersedia.</p>
     </DashboardLayout>
   ),
 });
@@ -55,14 +56,14 @@ function VerifyDetail() {
     <DashboardLayout
       role="verifier"
       title={`Batch ${batch.id}`}
-      description="Review the harvest details before approving or rejecting."
+      description="Tinjau detail panen sebelum menyetujui atau menolak."
       actions={
         <button
           onClick={() => navigate({ to: "/verifier/queue" })}
           className="inline-flex items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm font-medium hover:bg-accent"
         >
           <ArrowLeft className="size-4" />
-          Back to queue
+          Kembali ke Antrian
         </button>
       }
     >
@@ -85,23 +86,45 @@ function VerifyDetail() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <InfoCard icon={User} label="Farmer Information">
-              <Row label="Name" value={batch.farmerName} />
-              <Row label="Submitted" value={format(new Date(batch.submittedAt), "d MMM yyyy, HH:mm")} />
+            <InfoCard icon={User} label="Informasi Petani">
+              <Row label="Nama" value={batch.farmerName} />
+              <Row label="Dikirim" value={format(new Date(batch.submittedAt), "d MMM yyyy, HH:mm", { locale: idLocale })} />
             </InfoCard>
-            <InfoCard icon={MapPin} label="Farm Location">
-              <Row label="Origin" value={batch.farmLocation} />
-              <Row label="Coffee Type" value={batch.coffeeType} />
+            <InfoCard icon={MapPin} label="Lokasi Kebun">
+              <Row label="Asal" value={batch.farmLocation} />
+              <Row label="Jenis Kopi" value={batch.coffeeType} />
             </InfoCard>
-            <InfoCard icon={Calendar} label="Harvest Information">
-              <Row label="Date" value={format(new Date(batch.harvestDate), "d MMMM yyyy")} />
-              <Row label="Quantity" value={`${batch.quantityKg} kg`} />
+            <InfoCard icon={Calendar} label="Informasi Panen">
+              <Row label="Tanggal" value={format(new Date(batch.harvestDate), "d MMMM yyyy", { locale: idLocale })} />
+              <Row label="Jumlah" value={`${batch.quantityKg} kg`} />
             </InfoCard>
-            <InfoCard icon={Scale} label="Batch Metrics">
-              <Row label="Batch ID" value={batch.id} mono />
-              <Row label="Status" value={batch.status} />
+            <InfoCard icon={Scale} label="Metrik Batch">
+              <Row label="ID Batch" value={batch.id} mono />
+              <Row label="Status" value={statusLabel(batch.status)} />
             </InfoCard>
           </div>
+
+          {batch.verification && (
+            <div className="rounded-2xl border bg-card p-6 shadow-sm">
+              <div className="mb-4 flex items-center gap-2">
+                <div className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
+                  <ShieldCheck className="size-4" />
+                </div>
+                <h3 className="text-base font-semibold">Informasi Verifikasi</h3>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Row label="Nama Petugas" value={batch.verification.verifierName} />
+                <Row label="Instansi" value={batch.verification.institution} />
+                <Row label="Tanggal Verifikasi" value={format(new Date(batch.verification.verifiedAt), "d MMMM yyyy, HH:mm", { locale: idLocale })} />
+                <Row label="Status" value={statusLabel(batch.status)} />
+                {batch.verification.notes && (
+                  <div className="sm:col-span-2">
+                    <Row label="Catatan" value={batch.verification.notes} />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {batch.status === "verified" && batch.blockchain && (
             <div className="rounded-2xl border border-success/30 bg-gradient-to-br from-success/10 to-card p-6 shadow-sm">
@@ -110,18 +133,18 @@ function VerifyDetail() {
                   <Blocks className="size-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold">Verified by Government</h3>
-                  <p className="text-xs text-muted-foreground">Sealed into the blockchain ledger.</p>
+                  <h3 className="text-base font-semibold">Catatan Blockchain</h3>
+                  <p className="text-xs text-muted-foreground">Tercatat permanen pada ledger.</p>
                 </div>
                 <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-success px-3 py-1 text-xs font-semibold text-success-foreground">
-                  <ShieldCheck className="size-3.5" /> Authentic
+                  <ShieldCheck className="size-3.5" /> Asli
                 </span>
               </div>
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <BlockField icon={Blocks} label="Block Number" value={`#${batch.blockchain.blockNumber.toLocaleString()}`} />
-                <BlockField icon={Clock3} label="Timestamp" value={format(new Date(batch.blockchain.timestamp), "d MMM yyyy, HH:mm:ss")} />
-                <BlockField icon={Hash} label="Previous Hash" value={batch.blockchain.previousHash} mono full />
-                <BlockField icon={Hash} label="Current Hash" value={batch.blockchain.currentHash} mono full />
+                <BlockField icon={Blocks} label="Nomor Blok" value={`#${batch.blockchain.blockNumber.toLocaleString("id-ID")}`} />
+                <BlockField icon={Clock3} label="Waktu Pencatatan" value={`${format(new Date(batch.blockchain.timestamp), "d MMM yyyy, HH:mm:ss", { locale: idLocale })} WIB`} />
+                <BlockField icon={Hash} label="Hash Sebelumnya" value={batch.blockchain.previousHash} mono full />
+                <BlockField icon={Hash} label="Hash Saat Ini" value={batch.blockchain.currentHash} mono full />
               </div>
             </div>
           )}
@@ -129,12 +152,12 @@ function VerifyDetail() {
 
         <div className="space-y-4">
           <div className="rounded-2xl border bg-card p-6 shadow-sm">
-            <h3 className="text-base font-semibold">Verification form</h3>
-            <p className="text-xs text-muted-foreground">Record your decision and seal it on the chain.</p>
+            <h3 className="text-base font-semibold">Formulir Verifikasi</h3>
+            <p className="text-xs text-muted-foreground">Catat keputusan Anda dan simpan ke blockchain.</p>
 
             <div className="mt-4 space-y-3">
               <label className="block">
-                <span className="mb-1 block text-xs font-medium text-muted-foreground">Verifier Name</span>
+                <span className="mb-1 block text-xs font-medium text-muted-foreground">Nama Petugas Verifikasi</span>
                 <input
                   value={form.verifierName}
                   onChange={(e) => setForm({ ...form, verifierName: e.target.value })}
@@ -142,7 +165,7 @@ function VerifyDetail() {
                 />
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs font-medium text-muted-foreground">Institution Name</span>
+                <span className="mb-1 block text-xs font-medium text-muted-foreground">Nama Instansi</span>
                 <input
                   value={form.institution}
                   onChange={(e) => setForm({ ...form, institution: e.target.value })}
@@ -150,12 +173,12 @@ function VerifyDetail() {
                 />
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs font-medium text-muted-foreground">Verification Notes</span>
+                <span className="mb-1 block text-xs font-medium text-muted-foreground">Catatan Verifikasi</span>
                 <textarea
                   rows={4}
                   value={form.notes}
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                  placeholder="Documentation review, sample test results…"
+                  placeholder="Hasil tinjauan dokumen, uji sampel…"
                   className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </label>
@@ -167,35 +190,24 @@ function VerifyDetail() {
                   onClick={onApprove}
                   className="flex w-full items-center justify-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-semibold text-success-foreground shadow-sm transition hover:opacity-90"
                 >
-                  <ShieldCheck className="size-4" /> Approve Batch
+                  <ShieldCheck className="size-4" /> Setujui Batch
                 </button>
                 <button
                   onClick={onReject}
                   className="flex w-full items-center justify-center gap-2 rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-2.5 text-sm font-semibold text-destructive transition hover:bg-destructive/10"
                 >
-                  <XCircle className="size-4" /> Reject Batch
+                  <XCircle className="size-4" /> Tolak Batch
                 </button>
               </div>
             ) : (
               <div className="mt-5 rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
-                This batch was already <span className="font-medium text-foreground">{batch.status}</span>
+                Batch ini sudah <span className="font-medium text-foreground">{statusLabel(batch.status)}</span>
                 {batch.verification && (
-                  <> on {format(new Date(batch.verification.verifiedAt), "d MMM yyyy")} by {batch.verification.verifierName}.</>
+                  <> pada {format(new Date(batch.verification.verifiedAt), "d MMM yyyy", { locale: idLocale })} oleh {batch.verification.verifierName}.</>
                 )}
               </div>
             )}
           </div>
-
-          {batch.verification && (
-            <div className="rounded-2xl border bg-card p-6 shadow-sm">
-              <h3 className="text-sm font-semibold">Previous decision</h3>
-              <div className="mt-3 space-y-1.5 text-sm">
-                <Row label="Verifier" value={batch.verification.verifierName} />
-                <Row label="Institution" value={batch.verification.institution} />
-                <Row label="Notes" value={batch.verification.notes} />
-              </div>
-            </div>
-          )}
 
           {batch.status === "verified" && (
             <Link
@@ -203,13 +215,17 @@ function VerifyDetail() {
               params={{ id: batch.id }}
               className="block rounded-2xl border border-dashed bg-card/50 p-4 text-center text-sm font-medium text-primary hover:bg-card"
             >
-              View public QR verification page →
+              Lihat halaman verifikasi QR publik →
             </Link>
           )}
         </div>
       </div>
     </DashboardLayout>
   );
+}
+
+function statusLabel(s: string) {
+  return s === "verified" ? "Terverifikasi" : s === "pending" ? "Menunggu Verifikasi" : s === "rejected" ? "Ditolak" : s;
 }
 
 function InfoCard({ icon: Icon, label, children }: { icon: any; label: string; children: React.ReactNode }) {

@@ -17,24 +17,24 @@ import type { ReactNode } from "react";
 
 const navsByRole: Record<Role, Array<{ to: string; label: string; icon: any; exact?: boolean }>> = {
   farmer: [
-    { to: "/farmer", label: "Dashboard", icon: LayoutDashboard, exact: true },
-    { to: "/farmer/add", label: "Add Coffee Batch", icon: PlusCircle },
-    { to: "/farmer/batches", label: "My Batches", icon: ListChecks },
+    { to: "/farmer", label: "Dasbor", icon: LayoutDashboard, exact: true },
+    { to: "/farmer/add", label: "Tambah Batch", icon: PlusCircle },
+    { to: "/farmer/batches", label: "Daftar Batch", icon: ListChecks },
   ],
   verifier: [
-    { to: "/verifier", label: "Dashboard", icon: LayoutDashboard, exact: true },
-    { to: "/verifier/queue", label: "Verification Queue", icon: Inbox },
+    { to: "/verifier", label: "Dasbor", icon: LayoutDashboard, exact: true },
+    { to: "/verifier/queue", label: "Antrian Verifikasi", icon: Inbox },
   ],
   shop: [
-    { to: "/shop", label: "Dashboard", icon: LayoutDashboard, exact: true },
-    { to: "/shop/catalog", label: "Coffee Catalog", icon: BookOpen },
+    { to: "/shop", label: "Dasbor", icon: LayoutDashboard, exact: true },
+    { to: "/shop/catalog", label: "Katalog Kopi", icon: BookOpen },
   ],
 };
 
 const roleMeta: Record<Role, { title: string; subtitle: string; icon: any }> = {
-  farmer: { title: "Farmer Portal", subtitle: "Petani", icon: Coffee },
-  verifier: { title: "Government Verifier", subtitle: "Pemerintah", icon: ShieldCheck },
-  shop: { title: "Coffee Shop", subtitle: "Kios Kopi", icon: Store },
+  farmer: { title: "Portal Petani", subtitle: "Petani", icon: Coffee },
+  verifier: { title: "Petugas Verifikasi", subtitle: "Pemerintah", icon: ShieldCheck },
+  shop: { title: "Kedai Kopi", subtitle: "Kios Kopi", icon: Store },
 };
 
 export function DashboardLayout({
@@ -59,6 +59,11 @@ export function DashboardLayout({
   const meta = roleMeta[role];
   const RoleIcon = meta.icon;
 
+  const handleLogout = () => {
+    logout();
+    navigate({ to: "/login" });
+  };
+
   return (
     <div className="flex min-h-screen w-full bg-background">
       <aside className="hidden w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground md:flex">
@@ -68,7 +73,7 @@ export function DashboardLayout({
           </div>
           <div>
             <p className="text-sm font-semibold">CoffeeTrace</p>
-            <p className="text-[11px] text-sidebar-foreground/60">Blockchain Traceability</p>
+            <p className="text-[11px] text-sidebar-foreground/60">Telusur Kopi Blockchain</p>
           </div>
         </div>
 
@@ -107,7 +112,7 @@ export function DashboardLayout({
             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/60 transition hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             <ScanLine className="size-4" />
-            Public QR Demo
+            Demo QR Publik
           </Link>
         </nav>
 
@@ -122,14 +127,11 @@ export function DashboardLayout({
             </div>
           </div>
           <button
-            onClick={() => {
-              logout();
-              navigate({ to: "/login" });
-            }}
+            onClick={handleLogout}
             className="mt-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 transition hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             <LogOut className="size-4" />
-            Sign out
+            Keluar
           </button>
         </div>
       </aside>
@@ -140,7 +142,16 @@ export function DashboardLayout({
             <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
             {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
           </div>
-          <div className="flex items-center gap-3">{actions}</div>
+          <div className="flex items-center gap-3">
+            {actions}
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm font-medium hover:bg-accent"
+            >
+              <LogOut className="size-4" />
+              Keluar
+            </button>
+          </div>
         </header>
 
         <div className="flex-1 p-6">{children}</div>

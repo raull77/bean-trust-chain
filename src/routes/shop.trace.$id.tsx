@@ -4,16 +4,16 @@ import {
   Clock3, ArrowLeft, Sprout, FileCheck2, Truck, Store as StoreIcon,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { StatusBadge } from "@/components/StatusBadge";
 import { useStore } from "@/lib/store";
 import { shortHash } from "@/lib/blockchain";
 import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 
 export const Route = createFileRoute("/shop/trace/$id")({
   component: TracePage,
   notFoundComponent: () => (
-    <DashboardLayout role="shop" title="Batch not found">
-      <p className="text-sm text-muted-foreground">This batch does not exist.</p>
+    <DashboardLayout role="shop" title="Batch tidak ditemukan">
+      <p className="text-sm text-muted-foreground">Batch ini tidak tersedia.</p>
     </DashboardLayout>
   ),
 });
@@ -26,14 +26,14 @@ function TracePage() {
   return (
     <DashboardLayout
       role="shop"
-      title="Coffee traceability"
-      description="Complete supply chain history for this batch."
+      title="Telusur Kopi"
+      description="Riwayat lengkap rantai pasok batch ini."
       actions={
         <Link
           to="/shop/catalog"
           className="inline-flex items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm font-medium hover:bg-accent"
         >
-          <ArrowLeft className="size-4" /> Back to catalog
+          <ArrowLeft className="size-4" /> Kembali ke Katalog
         </Link>
       }
     >
@@ -51,7 +51,7 @@ function TracePage() {
                 </div>
               </div>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-success px-3 py-1.5 text-xs font-semibold text-success-foreground shadow-sm">
-                <ShieldCheck className="size-4" /> Verified Authentic Coffee
+                <ShieldCheck className="size-4" /> Kopi Asli Terverifikasi
               </span>
             </div>
             <p className="mt-4 text-sm text-muted-foreground">{batch.description}</p>
@@ -60,22 +60,24 @@ function TracePage() {
           <Timeline batch={batch} />
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <InfoCard icon={User} title="Farmer">
-              <Row label="Name" value={batch.farmerName} />
-              <Row label="Submitted" value={format(new Date(batch.submittedAt), "d MMM yyyy")} />
+            <InfoCard icon={User} title="Petani">
+              <Row label="Nama" value={batch.farmerName} />
+              <Row label="Dikirim" value={format(new Date(batch.submittedAt), "d MMM yyyy", { locale: idLocale })} />
             </InfoCard>
-            <InfoCard icon={MapPin} title="Farm Location">
-              <Row label="Origin" value={batch.farmLocation} />
-              <Row label="Quantity" value={`${batch.quantityKg} kg`} />
+            <InfoCard icon={MapPin} title="Lokasi Kebun">
+              <Row label="Asal" value={batch.farmLocation} />
+              <Row label="Jumlah" value={`${batch.quantityKg} kg`} />
             </InfoCard>
-            <InfoCard icon={Calendar} title="Harvest">
-              <Row label="Date" value={format(new Date(batch.harvestDate), "d MMMM yyyy")} />
-              <Row label="Type" value={batch.coffeeType} />
+            <InfoCard icon={Calendar} title="Panen">
+              <Row label="Tanggal" value={format(new Date(batch.harvestDate), "d MMMM yyyy", { locale: idLocale })} />
+              <Row label="Jenis" value={batch.coffeeType} />
             </InfoCard>
             {batch.verification && (
-              <InfoCard icon={ShieldCheck} title="Verification">
-                <Row label="Verifier" value={batch.verification.verifierName} />
-                <Row label="Date" value={format(new Date(batch.verification.verifiedAt), "d MMM yyyy")} />
+              <InfoCard icon={ShieldCheck} title="Informasi Verifikasi">
+                <Row label="Nama Petugas" value={batch.verification.verifierName} />
+                <Row label="Instansi" value={batch.verification.institution} />
+                <Row label="Tanggal" value={format(new Date(batch.verification.verifiedAt), "d MMM yyyy", { locale: idLocale })} />
+                <Row label="Status" value="Terverifikasi" />
               </InfoCard>
             )}
           </div>
@@ -88,7 +90,7 @@ function TracePage() {
             params={{ id: batch.id }}
             className="block rounded-2xl border border-dashed bg-card/60 p-4 text-center text-sm font-medium text-primary hover:bg-card"
           >
-            Open public QR verification page →
+            Buka halaman verifikasi QR publik →
           </Link>
         </div>
       </div>
@@ -100,31 +102,38 @@ function Timeline({ batch }: { batch: NonNullable<ReturnType<typeof useStore.get
   const steps = [
     {
       icon: Sprout,
-      title: "Farmer Registration",
-      desc: `${batch.farmerName} registered the harvest`,
+      title: "Petani Mendaftarkan Kopi",
+      desc: `${batch.farmerName} mendaftarkan hasil panen`,
       date: batch.submittedAt,
       done: true,
     },
     {
       icon: FileCheck2,
-      title: "Government Verification",
+      title: "Petugas Verifikasi Memeriksa Data",
       desc: batch.verification
         ? `${batch.verification.verifierName} (${batch.verification.institution})`
-        : "Awaiting verification",
+        : "Menunggu verifikasi",
       date: batch.verification?.verifiedAt,
+      done: batch.status === "verified" || batch.status === "rejected",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Kopi Dinyatakan Terverifikasi",
+      desc: batch.status === "verified" ? "Tercatat permanen di blockchain" : "Belum disetujui",
+      date: batch.status === "verified" ? batch.verification?.verifiedAt : undefined,
       done: batch.status === "verified",
     },
     {
       icon: Truck,
-      title: "Distribution",
-      desc: batch.distribution !== "none" ? `Distributed to ${batch.shopName}` : "Not yet distributed",
-      date: batch.distribution !== "none" ? batch.verification?.verifiedAt : undefined,
-      done: batch.distribution !== "none",
+      title: "Kedai Kopi Menerima Produk",
+      desc: batch.distribution === "received" ? `Diterima oleh ${batch.shopName}` : "Belum diterima kedai",
+      date: batch.receivedAt,
+      done: batch.distribution === "received",
     },
     {
       icon: StoreIcon,
-      title: "Coffee Shop Receipt",
-      desc: batch.distribution === "received" ? `Received by ${batch.shopName}` : "Pending shop receipt",
+      title: "Produk Siap Dijual",
+      desc: batch.distribution === "received" ? "Tersedia untuk pelanggan" : "Menunggu kesiapan",
       date: batch.receivedAt,
       done: batch.distribution === "received",
     },
@@ -132,8 +141,8 @@ function Timeline({ batch }: { batch: NonNullable<ReturnType<typeof useStore.get
 
   return (
     <div className="rounded-2xl border bg-card p-6 shadow-sm">
-      <h3 className="text-base font-semibold">Supply chain timeline</h3>
-      <p className="text-xs text-muted-foreground">From the farm to your shop.</p>
+      <h3 className="text-base font-semibold">Riwayat Rantai Pasok</h3>
+      <p className="text-xs text-muted-foreground">Dari kebun hingga ke kedai Anda.</p>
       <ol className="mt-5 space-y-5">
         {steps.map((s, i) => (
           <li key={i} className="relative flex gap-4">
@@ -158,7 +167,7 @@ function Timeline({ batch }: { batch: NonNullable<ReturnType<typeof useStore.get
                 <p className="text-sm font-medium">{s.title}</p>
                 {s.date && (
                   <span className="text-xs text-muted-foreground">
-                    {format(new Date(s.date), "d MMM yyyy")}
+                    {format(new Date(s.date), "d MMM yyyy", { locale: idLocale })}
                   </span>
                 )}
               </div>
@@ -179,18 +188,18 @@ function BlockchainCard({ b }: { b: NonNullable<ReturnType<typeof useStore.getSt
           <Blocks className="size-5" />
         </div>
         <div>
-          <h3 className="text-sm font-semibold">Blockchain record</h3>
-          <p className="text-xs text-muted-foreground">Immutable ledger entry</p>
+          <h3 className="text-sm font-semibold">Catatan Blockchain</h3>
+          <p className="text-xs text-muted-foreground">Entri ledger permanen</p>
         </div>
       </div>
       <div className="mt-4 space-y-3 text-sm">
-        <Field icon={Blocks} label="Block Number" value={`#${b.blockNumber.toLocaleString()}`} />
-        <Field icon={Clock3} label="Timestamp" value={format(new Date(b.timestamp), "d MMM yyyy, HH:mm:ss")} />
-        <Field icon={Hash} label="Previous Hash" value={shortHash(b.previousHash)} mono />
-        <Field icon={Hash} label="Current Hash" value={shortHash(b.currentHash)} mono />
+        <Field icon={Blocks} label="Nomor Blok" value={`#${b.blockNumber.toLocaleString("id-ID")}`} />
+        <Field icon={Clock3} label="Waktu Pencatatan" value={`${format(new Date(b.timestamp), "d MMM yyyy, HH:mm:ss", { locale: idLocale })} WIB`} />
+        <Field icon={Hash} label="Hash Sebelumnya" value={shortHash(b.previousHash)} mono />
+        <Field icon={Hash} label="Hash Saat Ini" value={shortHash(b.currentHash)} mono />
       </div>
       <span className="mt-5 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-success px-3 py-2 text-xs font-semibold text-success-foreground">
-        <ShieldCheck className="size-4" /> AUTHENTIC AND VERIFIED
+        <ShieldCheck className="size-4" /> ASLI DAN TERVERIFIKASI
       </span>
     </div>
   );

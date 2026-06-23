@@ -10,11 +10,11 @@ const variants: Record<string, string> = {
 };
 
 const labels: Record<string, string> = {
-  pending: "Pending",
-  verified: "Verified",
-  rejected: "Rejected",
-  distributed: "Distributed",
-  received: "Received",
+  pending: "Menunggu Verifikasi",
+  verified: "Terverifikasi",
+  rejected: "Ditolak",
+  distributed: "Didistribusikan",
+  received: "Diterima",
   none: "—",
 };
 

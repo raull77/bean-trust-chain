@@ -18,29 +18,29 @@ function ShopDashboard() {
   return (
     <DashboardLayout
       role="shop"
-      title="Welcome to your shop dashboard"
-      description="Source verified coffee with full provenance, sealed on the blockchain."
+      title="Selamat datang di dasbor kedai Anda"
+      description="Dapatkan kopi terverifikasi dengan riwayat lengkap yang tercatat di blockchain."
       actions={
         <Link
           to="/shop/catalog"
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
-          Browse catalog
+          Lihat Katalog
         </Link>
       }
     >
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Total Available Coffee" value={available.length} icon={Coffee} tone="coffee" hint="Verified & ready" />
-        <StatCard label="Verified Coffee" value={verified.length} icon={ShieldCheck} tone="success" hint="Sealed on-chain" />
-        <StatCard label="Received Coffee" value={received.length} icon={PackageCheck} tone="info" hint="In your inventory" />
+        <StatCard label="Total Kopi Tersedia" value={available.length} icon={Coffee} tone="coffee" hint="Terverifikasi & siap" />
+        <StatCard label="Kopi Terverifikasi" value={verified.length} icon={ShieldCheck} tone="success" hint="Tercatat di blockchain" />
+        <StatCard label="Kopi Diterima" value={received.length} icon={PackageCheck} tone="info" hint="Stok kedai Anda" />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border bg-card shadow-sm">
           <div className="flex items-center justify-between border-b px-5 py-4">
-            <h2 className="text-base font-semibold">Fresh verified arrivals</h2>
+            <h2 className="text-base font-semibold">Kopi Terverifikasi Terbaru</h2>
             <Link to="/shop/catalog" className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
-              Catalog <ArrowUpRight className="size-3.5" />
+              Katalog <ArrowUpRight className="size-3.5" />
             </Link>
           </div>
           <div className="divide-y">
@@ -61,8 +61,8 @@ function ShopDashboard() {
 
         <div className="rounded-2xl border bg-card shadow-sm">
           <div className="flex items-center justify-between border-b px-5 py-4">
-            <h2 className="text-base font-semibold">Recently received</h2>
-            <span className="text-xs text-muted-foreground">{received.length} in stock</span>
+            <h2 className="text-base font-semibold">Baru Saja Diterima</h2>
+            <span className="text-xs text-muted-foreground">{received.length} di stok</span>
           </div>
           <div className="divide-y">
             {received.slice(0, 5).map((b) => (
@@ -83,7 +83,7 @@ function ShopDashboard() {
               </Link>
             ))}
             {received.length === 0 && (
-              <p className="px-5 py-8 text-center text-sm text-muted-foreground">No shipments received yet.</p>
+              <p className="px-5 py-8 text-center text-sm text-muted-foreground">Belum ada pengiriman yang diterima.</p>
             )}
           </div>
         </div>

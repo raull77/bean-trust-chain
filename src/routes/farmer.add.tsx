@@ -36,22 +36,22 @@ function AddBatchPage() {
 
   if (submitted) {
     return (
-      <DashboardLayout role="farmer" title="Batch submitted" description="Awaiting government verification.">
+      <DashboardLayout role="farmer" title="Batch terkirim" description="Menunggu verifikasi pemerintah.">
         <div className="mx-auto max-w-xl rounded-2xl border bg-card p-8 text-center shadow-sm">
           <div className="mx-auto grid size-14 place-items-center rounded-full bg-success/15 text-success">
             <CheckCircle2 className="size-7" />
           </div>
-          <h2 className="mt-4 text-xl font-semibold">Batch registered successfully</h2>
+          <h2 className="mt-4 text-xl font-semibold">Batch berhasil didaftarkan</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Your batch <span className="font-mono font-medium text-foreground">{submitted}</span> has been submitted
-            and is now <span className="font-medium text-warning-foreground">Pending Verification</span>.
+            Batch Anda <span className="font-mono font-medium text-foreground">{submitted}</span> telah dikirim
+            dan kini berstatus <span className="font-medium text-warning-foreground">Menunggu Verifikasi</span>.
           </p>
           <div className="mt-6 flex justify-center gap-3">
             <button
               onClick={() => navigate({ to: "/farmer/batches" })}
               className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              View my batches
+              Lihat batch saya
             </button>
             <button
               onClick={() => {
@@ -60,7 +60,7 @@ function AddBatchPage() {
               }}
               className="rounded-lg border bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
             >
-              Add another
+              Tambah batch lain
             </button>
           </div>
         </div>
@@ -71,21 +71,21 @@ function AddBatchPage() {
   return (
     <DashboardLayout
       role="farmer"
-      title="Add coffee batch"
-      description="Register a new harvest for verification and traceability."
+      title="Tambah batch kopi"
+      description="Daftarkan panen baru untuk diverifikasi dan ditelusuri."
     >
       <form onSubmit={submit} className="mx-auto max-w-3xl space-y-6">
         <div className="rounded-2xl border bg-card p-6 shadow-sm">
-          <SectionTitle icon={Coffee} title="Coffee information" />
+          <SectionTitle icon={Coffee} title="Informasi Kopi" />
           <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Batch ID">
+            <Field label="ID Batch">
               <input
                 disabled
-                value="Auto-generated on submit"
+                value="Dibuat otomatis saat dikirim"
                 className="w-full rounded-lg border bg-muted px-3 py-2 text-sm text-muted-foreground"
               />
             </Field>
-            <Field label="Coffee Type">
+            <Field label="Jenis Kopi">
               <select
                 value={form.coffeeType}
                 onChange={(e) => setForm({ ...form, coffeeType: e.target.value })}
@@ -97,12 +97,12 @@ function AddBatchPage() {
                 <option>Excelsa</option>
               </select>
             </Field>
-            <Field label="Coffee Name" className="md:col-span-2">
+            <Field label="Nama Kopi" className="md:col-span-2">
               <input
                 required
                 value={form.coffeeName}
                 onChange={(e) => setForm({ ...form, coffeeName: e.target.value })}
-                placeholder="e.g. Gayo Highland Arabica"
+                placeholder="cth. Gayo Highland Arabica"
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </Field>
@@ -110,9 +110,9 @@ function AddBatchPage() {
         </div>
 
         <div className="rounded-2xl border bg-card p-6 shadow-sm">
-          <SectionTitle icon={MapPin} title="Farmer & origin" />
+          <SectionTitle icon={MapPin} title="Informasi Petani" />
           <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Farmer Name">
+            <Field label="Nama Petani">
               <input
                 required
                 value={form.farmerName}
@@ -120,12 +120,12 @@ function AddBatchPage() {
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </Field>
-            <Field label="Farm Location">
+            <Field label="Lokasi Kebun">
               <input
                 required
                 value={form.farmLocation}
                 onChange={(e) => setForm({ ...form, farmLocation: e.target.value })}
-                placeholder="Village, District, Province"
+                placeholder="Desa, Kecamatan, Provinsi"
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </Field>
@@ -133,9 +133,9 @@ function AddBatchPage() {
         </div>
 
         <div className="rounded-2xl border bg-card p-6 shadow-sm">
-          <SectionTitle icon={Calendar} title="Harvest details" />
+          <SectionTitle icon={Calendar} title="Detail Panen" />
           <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Harvest Date">
+            <Field label="Tanggal Panen">
               <input
                 type="date"
                 required
@@ -144,7 +144,7 @@ function AddBatchPage() {
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </Field>
-            <Field label="Harvest Quantity (kg)">
+            <Field label="Jumlah Panen (kg)">
               <div className="relative">
                 <Scale className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <input
@@ -157,7 +157,7 @@ function AddBatchPage() {
                 />
               </div>
             </Field>
-            <Field label="Coffee Description" className="md:col-span-2">
+            <Field label="Deskripsi Kopi" className="md:col-span-2">
               <div className="relative">
                 <FileText className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground" />
                 <textarea
@@ -165,7 +165,7 @@ function AddBatchPage() {
                   rows={4}
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  placeholder="Process, flavor notes, elevation, certifications…"
+                  placeholder="Proses, profil rasa, ketinggian, sertifikasi…"
                   className="w-full rounded-lg border bg-background px-3 py-2 pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
@@ -179,13 +179,13 @@ function AddBatchPage() {
             onClick={() => navigate({ to: "/farmer" })}
             className="rounded-lg border bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
           >
-            Cancel
+            Batal
           </button>
           <button
             type="submit"
             className="rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
           >
-            Submit Batch
+            Kirim Batch
           </button>
         </div>
       </form>
