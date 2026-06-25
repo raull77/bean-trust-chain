@@ -25,6 +25,14 @@ export interface BlockchainRecord {
   timestamp: string;
 }
 
+export interface SolanaRecord {
+  blockchainNetwork: "Solana Devnet";
+  transactionSignature: string;
+  verifiedAt: string;
+  verifiedBy: string;
+  onChain: true;
+}
+
 export interface Batch {
   id: string;
   coffeeName: string;
@@ -46,6 +54,7 @@ export interface Batch {
     verifiedAt: string;
   };
   blockchain?: BlockchainRecord;
+  solana?: SolanaRecord;
   shopName?: string;
   shopId?: string;
   receivedAt?: string;
@@ -92,6 +101,7 @@ interface StoreState {
   distributeBatch: (id: string, shopName: string, shopId?: string) => void;
   receiveBatch: (id: string, shopName: string, shopId?: string) => void;
   setUserActive: (userId: string, isActive: boolean) => void;
+  updateBatchSolana: (batchId: string, solana: SolanaRecord) => void;
 }
 
 // Simulasi hash kata sandi (client-side only)
@@ -629,6 +639,14 @@ export const useStore = create<StoreState>()(
             u.id === userId ? { ...u, isActive } : u
           ),
           auditLogs: [log, ...get().auditLogs],
+        });
+      },
+
+      updateBatchSolana: (batchId, solana) => {
+        set({
+          batches: get().batches.map((b) =>
+            b.id === batchId ? { ...b, solana } : b
+          ),
         });
       },
     }),
