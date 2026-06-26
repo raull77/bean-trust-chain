@@ -12,4 +12,11 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Aktifkan Nitro dengan preset Vercel agar build menghasilkan
+  // output .vercel/output/ yang dimengerti Vercel deployment pipeline.
+  // Tanpa ini, build hanya menghasilkan dist/client + dist/server mentah
+  // dan Vercel tidak tahu cara merouting request ke SSR handler.
+  nitro: {
+    preset: "vercel",
+  },
 });
